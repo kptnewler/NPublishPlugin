@@ -1,0 +1,3 @@
+rootProject.name = "NPublishPlugin"
+include ':app'
+include ':n-publish-plugin'

@@ -21,5 +21,6 @@ class GitProject(repo: Repository) {
     } catch (e: Throwable) {
         emptySet()
     }).takeIf {it.isNotEmpty()} ?: devAccount.takeIf{devName.isNullOrEmpty()} ?: setOf("${localName}@local" to localName)
+// 参考上传 https://central.sonatype.org/publish/publish-gradle/#metadata-definition-and-upload
 
 }

@@ -8,6 +8,7 @@ plugins {
 
 dependencies {
     implementation(gradleApi())
+    compileOnly("com.android.tools.build:gradle:4.1.3")
 }
 
 java {

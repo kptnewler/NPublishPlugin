@@ -18,6 +18,9 @@ abstract class AbstractLibraryPublishPlugin: Plugin<Project> {
                     publications {
                         createMavenPublications(this) {
                             pom {
+                                description.set(target.description)
+                                name.set(target.name)
+                                url.set(git.url)
                                 scm {
                                     connection.set("scm:git:${git.url}")
                                     developerConnection.set("scm:git:${git.url}")
@@ -26,7 +29,18 @@ abstract class AbstractLibraryPublishPlugin: Plugin<Project> {
 
                                 licenses {
                                     license {
-                                        name.set(target.l)
+                                        name.set(target.license?.name)
+                                        url.set(target.license?.url)
+                                    }
+                                }
+
+                                developers {
+                                    git.developers.forEach {(e, n) ->
+                                        developer {
+                                            id.set(n)
+                                            name.set(n)
+                                            email.set(e)
+                                        }
                                     }
                                 }
                             }
@@ -44,5 +58,11 @@ abstract class AbstractLibraryPublishPlugin: Plugin<Project> {
 
     open fun Project.configureDependencies() {
         configureDokka()
+    }
+
+    fun MavenPublication.configure(project: Project) {
+        artifactId = project.name
+        groupId = project.groupString
+        version = project.versionString
     }
 }

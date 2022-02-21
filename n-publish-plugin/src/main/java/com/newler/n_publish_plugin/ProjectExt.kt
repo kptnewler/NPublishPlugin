@@ -4,18 +4,27 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.credentials.PasswordCredentials
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.internal.impldep.org.apache.ivy.core.module.descriptor.License
 import org.gradle.internal.impldep.org.eclipse.jgit.lib.Repository
 import org.gradle.internal.impldep.org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.plugins.signing.SigningExtension
 import java.io.File
-import kotlin.random.Random.Default.Companion
 
 fun Project.configSonatype() {
 
 }
+
+val Project.versionString: String
+    get() = version.toString().takeIf { it != Project.DEFAULT_VERSION && it.isNotBlank() }
+        ?: parent?.versionString
+        ?: throw GradleException("unspecified project version")
+
+val Project.groupString: String
+    get() = group.toString().takeIf(String::isNotBlank)?.takeUnless {
+        it == rootProject.name || it.startsWith("${rootProject.name}.")
+    } ?: parent?.groupString ?: throw GradleException("unspecified project group")
+
 
 val Project.useSonatype: Boolean
     get() {
@@ -37,7 +46,7 @@ fun Project.git(): Repository =
     FileRepositoryBuilder().setGitDir(File(rootDir, ".git")).findGitDir().build()
 
 val Project.license: License?
-    get() = rootDir.listFiles()?.asSequence()?.mapNotNull { License.of }?.firstOrNull()
+    get() = rootDir.listFiles()?.asSequence()?.mapNotNull { License.of(it) }?.firstOrNull()
 
 fun Project.publishing(
     config: PublishingExtension.() -> Unit

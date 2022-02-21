@@ -4,12 +4,14 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.credentials.PasswordCredentials
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.internal.impldep.org.apache.ivy.core.module.descriptor.License
 import org.gradle.internal.impldep.org.eclipse.jgit.lib.Repository
 import org.gradle.internal.impldep.org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.plugins.signing.SigningExtension
 import java.io.File
+import kotlin.random.Random.Default.Companion
 
 fun Project.configSonatype() {
 
@@ -33,6 +35,9 @@ val Project.hasSigningProperties
 
 fun Project.git(): Repository =
     FileRepositoryBuilder().setGitDir(File(rootDir, ".git")).findGitDir().build()
+
+val Project.license: License?
+    get() = rootDir.listFiles()?.asSequence()?.mapNotNull { License.of }?.firstOrNull()
 
 fun Project.publishing(
     config: PublishingExtension.() -> Unit
@@ -69,6 +74,14 @@ fun Project.configSonatypeRepository() {
                 username = ossrhUsername
                 password = ossrhPassword
             }
+        }
+    }
+}
+
+fun Project.configureDokka() {
+    extensions.findByName("kotlin")?.let {
+        plugins.run {
+            apply("org.jetbrains.dokka")
         }
     }
 }
